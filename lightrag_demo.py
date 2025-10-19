@@ -14,10 +14,11 @@ import os
 import random
 
 import networkx as nx
+import numpy as np
 from lightrag import LightRAG, QueryParam
 from lightrag.kg.shared_storage import initialize_pipeline_status
-from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
-from lightrag.utils import logger, set_verbose_debug
+from lightrag.llm.openai import openai_complete_if_cache, openai_embed
+from lightrag.utils import EmbeddingFunc, logger, set_verbose_debug
 from pyvis.network import Network
 
 WORKING_DIR = "./demo"
@@ -90,12 +91,37 @@ if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
 
+async def llm_model_func(
+    prompt, system_prompt=None, history_messages=None, **kwargs
+) -> str:
+    """Function to call OpenAI LLM model for text completion"""
+    return await openai_complete_if_cache(
+        "gpt-5-nano",
+        prompt,
+        system_prompt=system_prompt,
+        history_messages=history_messages,
+        api_key=os.getenv("OPENAI_API_KEY"),
+        base_url="https://api.openai.com/v1",
+        **kwargs,
+    )
+
+
+async def embedding_func(texts: list[str]) -> np.ndarray:
+    """Generate embeddings for a list of texts using OpenAI embedding model"""
+    return await openai_embed(
+        texts,
+        model="text-embedding-3-small",
+        api_key=os.getenv("OPENAI_API_KEY"),
+        base_url="https://api.openai.com/v1",
+    )
+
+
 async def initialize_rag():
     """Initialize and return a LightRAG instance"""
     rag = LightRAG(
         working_dir=WORKING_DIR,
-        embedding_func=openai_embed,
-        llm_model_func=gpt_4o_mini_complete,
+        embedding_func=EmbeddingFunc(embedding_dim=1536, func=embedding_func),
+        llm_model_func=llm_model_func,
     )
 
     await rag.initialize_storages()
@@ -172,17 +198,43 @@ async def main():
         with open("./sample.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
+        # "local_mode": "Focuses on specific entities and their relationships",
+        # "global_mode": "Provides broader context from relationship patterns",
+        # "hybrid_mode": "Combines local and global approaches",
+        # "naive_mode": "Simple vector similarity search",
+        # "mix_mode": "Integrates knowledge graph and vector retrieval",
+
         # Perform naive search
         print("\n=====================")
         print("Query mode: naive")
         print("=====================")
-        print(await rag.aquery("What is dharma?", param=QueryParam(mode="naive")))
+        print(
+            await rag.aquery(
+                "Do we plan to visit the sun?",
+                param=QueryParam(
+                    mode="naive",
+                    enable_rerank=False,
+                    top_k=10,
+                    chunk_top_k=5,
+                ),
+            )
+        )
 
         # Perform local search
         print("\n=====================")
         print("Query mode: local")
         print("=====================")
-        print(await rag.aquery("What is dharma?", param=QueryParam(mode="local")))
+        print(
+            await rag.aquery(
+                "Do we plan to visit the sun?",
+                param=QueryParam(
+                    mode="local",
+                    enable_rerank=False,
+                    top_k=10,
+                    chunk_top_k=5,
+                ),
+            )
+        )
 
         # Perform global search
         print("\n=====================")
@@ -190,8 +242,13 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "What is dharma?",
-                param=QueryParam(mode="global"),
+                "Do we plan to visit the sun?",
+                param=QueryParam(
+                    mode="global",
+                    enable_rerank=False,
+                    top_k=10,
+                    chunk_top_k=5,
+                ),
             )
         )
 
@@ -201,8 +258,29 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "What is dharma?",
-                param=QueryParam(mode="hybrid"),
+                "Do we plan to visit the sun?",
+                param=QueryParam(
+                    mode="hybrid",
+                    enable_rerank=False,
+                    top_k=10,
+                    chunk_top_k=5,
+                ),
+            )
+        )
+
+        # Perform mix search
+        print("\n=====================")
+        print("Query mode: mix")
+        print("=====================")
+        print(
+            await rag.aquery(
+                "Do we plan to visit the sun?",
+                param=QueryParam(
+                    mode="mix",
+                    enable_rerank=False,
+                    top_k=10,
+                    chunk_top_k=5,
+                ),
             )
         )
 
