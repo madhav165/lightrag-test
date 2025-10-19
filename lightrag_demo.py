@@ -195,7 +195,7 @@ async def main():
         # Initialize RAG instance
         rag = await initialize_rag()
 
-        with open("./sample.txt", "r", encoding="utf-8") as f:
+        with open("./sample2.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
         # "local_mode": "Focuses on specific entities and their relationships",
@@ -210,7 +210,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "Do we plan to visit the sun?",
+                "Are we all in the same time?",
                 param=QueryParam(
                     mode="naive",
                     enable_rerank=False,
@@ -226,7 +226,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "Do we plan to visit the sun?",
+                "Are we all in the same time?",
                 param=QueryParam(
                     mode="local",
                     enable_rerank=False,
@@ -242,7 +242,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "Do we plan to visit the sun?",
+                "Are we all in the same time?",
                 param=QueryParam(
                     mode="global",
                     enable_rerank=False,
@@ -258,7 +258,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "Do we plan to visit the sun?",
+                "Are we all in the same time?",
                 param=QueryParam(
                     mode="hybrid",
                     enable_rerank=False,
@@ -274,7 +274,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "Do we plan to visit the sun?",
+                "Are we all in the same time?",
                 param=QueryParam(
                     mode="mix",
                     enable_rerank=False,
