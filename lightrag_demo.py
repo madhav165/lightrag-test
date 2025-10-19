@@ -17,7 +17,7 @@ from lightrag.kg.shared_storage import initialize_pipeline_status
 from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
 from lightrag.utils import logger, set_verbose_debug
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "./demo"
 
 
 def configure_logging():
@@ -145,21 +145,13 @@ async def main():
         print("\n=====================")
         print("Query mode: naive")
         print("=====================")
-        print(
-            await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="naive")
-            )
-        )
+        print(await rag.aquery("What is dharma?", param=QueryParam(mode="naive")))
 
         # Perform local search
         print("\n=====================")
         print("Query mode: local")
         print("=====================")
-        print(
-            await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="local")
-            )
-        )
+        print(await rag.aquery("What is dharma?", param=QueryParam(mode="local")))
 
         # Perform global search
         print("\n=====================")
@@ -167,7 +159,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "What are the top themes in this story?",
+                "What is dharma?",
                 param=QueryParam(mode="global"),
             )
         )
@@ -178,7 +170,7 @@ async def main():
         print("=====================")
         print(
             await rag.aquery(
-                "What are the top themes in this story?",
+                "What is dharma?",
                 param=QueryParam(mode="hybrid"),
             )
         )
