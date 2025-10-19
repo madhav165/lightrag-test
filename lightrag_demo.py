@@ -198,6 +198,8 @@ async def main():
         with open("./sample2.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
+        visualize_graph()
+
         # "local_mode": "Focuses on specific entities and their relationships",
         # "global_mode": "Provides broader context from relationship patterns",
         # "hybrid_mode": "Combines local and global approaches",
@@ -283,8 +285,6 @@ async def main():
                 ),
             )
         )
-
-        visualize_graph()
     except Exception as e:  # pylint: disable=broad-exception-caught
         if isinstance(e, KeyboardInterrupt):
             print("\nProcess interrupted by user.")
