@@ -11,11 +11,14 @@ import asyncio
 import logging
 import logging.config
 import os
+import random
 
+import networkx as nx
 from lightrag import LightRAG, QueryParam
 from lightrag.kg.shared_storage import initialize_pipeline_status
 from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
 from lightrag.utils import logger, set_verbose_debug
+from pyvis.network import Network
 
 WORKING_DIR = "./demo"
 
@@ -110,6 +113,33 @@ def delete_old_files(files: list[str]):
             print(f"Deleting old file:: {file_path}")
 
 
+def visualize_graph():
+    """Visualize the knowledge graph using Pyvis"""
+    graph = nx.read_graphml("./demo/graph_chunk_entity_relation.graphml")
+
+    # Create a Pyvis network
+    net = Network(height="100vh", notebook=True)
+
+    # Convert NetworkX graph to Pyvis network
+    net.from_nx(graph)
+
+    # Add colors and title to nodes
+    for node in net.nodes:
+        hex_value = random.randint(0, 0xFFFFFF)
+        hex_color = f"#{hex_value:06x}"
+        node["color"] = hex_color
+        if "description" in node:
+            node["title"] = node["description"]
+
+    # Add title to edges
+    for edge in net.edges:
+        if "description" in edge:
+            edge["title"] = edge["description"]
+
+    # Save and display the network
+    net.show("./demo/knowledge_graph.html")
+
+
 async def main():
     """Main function to demonstrate LightRAG capabilities"""
     if not os.getenv("OPENAI_API_KEY"):
@@ -131,6 +161,7 @@ async def main():
             "vdb_chunks.json",
             "vdb_entities.json",
             "vdb_relationships.json",
+            "knowledge_graph.html",
         ]
 
         delete_old_files(files_to_delete)
@@ -174,6 +205,8 @@ async def main():
                 param=QueryParam(mode="hybrid"),
             )
         )
+
+        visualize_graph()
     except Exception as e:  # pylint: disable=broad-exception-caught
         if isinstance(e, KeyboardInterrupt):
             print("\nProcess interrupted by user.")
