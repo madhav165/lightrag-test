@@ -101,7 +101,7 @@ async def llm_model_func(
         system_prompt=system_prompt,
         history_messages=history_messages,
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url="https://api.openai.com/v1",
+        base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         **kwargs,
     )
 
@@ -111,8 +111,8 @@ async def embedding_func(texts: list[str]) -> np.ndarray:
     return await openai_embed(
         texts,
         model="text-embedding-3-small",
-        api_key=os.getenv("OPENAI_API_KEY"),
-        base_url="https://api.openai.com/v1",
+        api_key=os.getenv("EMBEDDING_OPENAI_API_KEY"),
+        base_url=os.getenv("EMBEDDING_OPENAI_BASE_URL", "https://api.openai.com/v1"),
     )
 
 
