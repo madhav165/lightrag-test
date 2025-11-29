@@ -120,7 +120,7 @@ async def initialize_rag():
     """Initialize and return a LightRAG instance"""
     rag = LightRAG(
         working_dir=WORKING_DIR,
-        embedding_func=EmbeddingFunc(embedding_dim=1536, func=embedding_func),
+        embedding_func=EmbeddingFunc(embedding_dim=2560, func=embedding_func),
         llm_model_func=llm_model_func,
     )
 
